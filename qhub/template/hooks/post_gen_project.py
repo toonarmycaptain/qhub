@@ -5,6 +5,7 @@ import yaml
 
 PROJECT_DIRECTORY = os.path.realpath(os.path.curdir)
 PROVIDER = "{{ cookiecutter.provider }}"
+CI_PROVIDER = "{{ cookiecutter.ci_cd }}"
 ENVIRONMENTS = eval("{{ cookiecutter.environments }}")
 TERRAFORM_STATE = "{{ cookiecutter.terraform_state.type }}"
 
@@ -64,6 +65,6 @@ if __name__ == "__main__":
     elif CI_PROVIDER == "none":
         remove_file(".gitlab-ci.yml")
         remove_directory(".github")
-        
+
     # templates directory is only used by includes
     remove_directory("templates")
