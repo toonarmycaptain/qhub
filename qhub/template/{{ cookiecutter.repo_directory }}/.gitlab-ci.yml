@@ -9,7 +9,7 @@ render-qhub:
     - git config user.email "qhub@quansight.com"
     - git config user.name "gitlab ci"
     - git add .
-    - git diff --quiet && git diff --staged --quiet || (git commit -m "${COMMIT_MSG}"; git push origin master)
+    - git diff --quiet && git diff --staged --quiet || (git commit -m "${COMMIT_MSG}"; git push origin master:master)
   only:
     refs:
       - master
@@ -45,7 +45,7 @@ terraform-jupyterhub:
     name: "hashicorp/terraform"
     entrypoint: [""]
   variables: 
-    WORKSPACE: '/infrastructure'
+    WORKSPACE: 'infrastructure'
     GITLAB_TOKEN: {{ '$CI_JOB_TOKEN' }}
 {%- if cookiecutter.prefect is true %}
 {% raw %}
@@ -70,7 +70,7 @@ terraform-jupyterhub:
 {% endraw %}
 {% elif cookiecutter.provider == 'gcp' %}
 {% raw %}
-    GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+    GOOGLE_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
 {% endraw %}
 {% elif cookiecutter.provider == 'azure' %}
 {% raw %}
