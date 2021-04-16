@@ -1,22 +1,85 @@
-render-qhub:
-  image: "python:3.9"
+qhub-deploy:
+  image: "python:3.8"
   variables:
     COMMIT_MSG: |
       qhub-config.yaml automated commit: {{ '$CI_COMMIT_SHA' }}
+{% if cookiecutter.provider == 'aws' %}
+{% raw %}
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+{% endraw %}
+{% elif cookiecutter.provider == 'do' %}
+{% raw %}
+    AWS_ACCESS_KEY_ID: ${{ secrets.SPACES_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.SPACES_SECRET_ACCESS_KEY }}
+    SPACES_ACCESS_KEY_ID: ${{ secrets.SPACES_ACCESS_KEY_ID }}
+    SPACES_SECRET_ACCESS_KEY: ${{ secrets.SPACES_SECRET_ACCESS_KEY }}
+    DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+{% endraw %}
+{% elif cookiecutter.provider == 'gcp' %}
+{% raw %}
+    GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+{% endraw %}
+{% elif cookiecutter.provider == 'azure' %}
+{% raw %}
+    ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+    ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+{% endraw %}
+{% endif %}  
+
   script:
-    - pip install qhub==0.3.0
-    - qhub deploy --config qhub-config.yaml
+    - pip install https://github.com/Quansight/qhub/archive/gitlab-integration.zip
+    - qhub render --config qhub-config.yaml
     - git config user.email "qhub@quansight.com"
     - git config user.name "gitlab ci"
     - git add .
     - git diff --quiet && git diff --staged --quiet || (git commit -m "${COMMIT_MSG}"; git push origin master:master)
+    - qhub deploy --config qhub-config.yaml --disable-render
+
   only:
     refs:
       - master
     changes:
       - "qhub-config.yaml"
 
-build-docker-images:
+qhub-validate:
+  image: "python:3.8"
+  variables:
+    GITLAB_TOKEN: {{ $CI_JOB_TOKEN }}
+{% if cookiecutter.provider == 'aws' %}
+{% raw %}
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+{% endraw %}
+{% elif cookiecutter.provider == 'do' %}
+{% raw %}
+    AWS_ACCESS_KEY_ID: ${{ secrets.SPACES_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.SPACES_SECRET_ACCESS_KEY }}
+    SPACES_ACCESS_KEY_ID: ${{ secrets.SPACES_ACCESS_KEY_ID }}
+    SPACES_SECRET_ACCESS_KEY: ${{ secrets.SPACES_SECRET_ACCESS_KEY }}
+    DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+{% endraw %}
+{% elif cookiecutter.provider == 'gcp' %}
+{% raw %}
+    GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+{% endraw %}
+{% elif cookiecutter.provider == 'azure' %}
+{% raw %}
+    ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+    ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+{% endraw %}
+{% endif %}
+  scritps:
+    - pip install https://github.com/Quansight/qhub/archive/gitlab-integration.zip
+    - qhub validate --config qhub-config.yaml
+
+build-images-pr:
   services:
     - docker:dind
   image: "docker:19.03.12"
@@ -40,65 +103,7 @@ build-docker-images:
     changes:
       - "image/**"
 
-terraform-jupyterhub:
-  image:
-    name: "hashicorp/terraform"
-    entrypoint: [""]
-  variables: 
-    WORKSPACE: 'infrastructure'
-    GITLAB_TOKEN: {{ '$CI_JOB_TOKEN' }}
-{%- if cookiecutter.prefect is true %}
-{% raw %}
-    ARGS: '-var="prefect_token=${{ secrets.PREFECT_TOKEN }}"'
-{% endraw %}
-{% elif cookiecutter.prefect is false %}
-    ARGS: []
-{%- endif %}
-{% if cookiecutter.provider == 'aws' %}
-{% raw %}
-    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-{% endraw %}
-{% elif cookiecutter.provider == 'do' %}
-{% raw %}
-    AWS_ACCESS_KEY_ID: ${{ secrets.SPACES_ACCESS_KEY_ID }}
-    AWS_SECRET_ACCESS_KEY: ${{ secrets.SPACES_SECRET_ACCESS_KEY }}
-    SPACES_ACCESS_KEY_ID: ${{ secrets.SPACES_ACCESS_KEY_ID }}
-    SPACES_SECRET_ACCESS_KEY: ${{ secrets.SPACES_SECRET_ACCESS_KEY }}
-    DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
-{% endraw %}
-{% elif cookiecutter.provider == 'gcp' %}
-{% raw %}
-    GOOGLE_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-{% endraw %}
-{% elif cookiecutter.provider == 'azure' %}
-{% raw %}
-    ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-    ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-    ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-{% endraw %}
-{% endif %}
-
-  before_script:
-    - terraform version
-
-  script: |
-    terraform fmt ${WORKSPACE}
-    terraform init ${WORKSPACE}
-    terraform validate ${WORKSPACE}
-    terraform plan ${VARS} ${WORKSPACE}
-    terraform apply ${VARS} ${WORKSPACE}
-
-  only:
-    refs:
-      - master
-    changes:
-      - "infrastructure/**" 
-      - "environments/**"
-
-qhub-build-dockerfiles:
+build-image:
   services:
     - docker:dind
   parallel:
@@ -143,8 +148,7 @@ qhub-build-dockerfiles:
     DOCKER_IMAGE_NAME: {{ cookiecutter.project_name }}/qhub-{{ '$DOCKERFILE' }}
     IMAGE_TAG: {{ '$CI_COMMIT_SHA' }}
     PROJECT_ID: {{ '${{ secrets.PROJECT_ID }}' }}
-    GCP_CREDENTIALS: {{ '${{ secrets.GCP_CREDENTIALS }}' }}
-
+    GCP_CREDENTIALS: {{ '${{ secrets.GOOGLE_CREDENTIALS }}' }}
 
   before_script:
     - docker --version
@@ -169,7 +173,6 @@ qhub-build-dockerfiles:
     LOGIN_SERVER: {{ cookiecutter.project_name }}.azurecr.io
     AZURE_USER: {{ '${{ secrets.ARM_CLIENT_ID }}' }}
     AZURE_PASS: {{ '${{ secrets.ARM_CLIENT_SECRET }}' }}
-
 
   before_script:
     - docker --version
