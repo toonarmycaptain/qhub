@@ -84,7 +84,7 @@ qhub-validate:
     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 {% endraw %}
 {% endif %}
-  scritps:
+  script:
     - pip install https://github.com/Quansight/qhub/archive/gitlab-integration.zip
     - qhub validate --config qhub-config.yaml
 
