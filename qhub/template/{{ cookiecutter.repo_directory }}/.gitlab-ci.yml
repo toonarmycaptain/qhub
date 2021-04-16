@@ -48,7 +48,7 @@ qhub-deploy:
 qhub-validate:
   image: "python:3.8"
   variables:
-    GITLAB_TOKEN: {{ $CI_JOB_TOKEN }}
+    GITLAB_TOKEN: {{ '$CI_JOB_TOKEN' }}
 {% if cookiecutter.provider == 'aws' %}
 {% raw %}
     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
