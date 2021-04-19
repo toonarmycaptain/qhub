@@ -45,7 +45,7 @@ qhub-deploy:
     - git add .
     - git diff --quiet && git diff --staged --quiet || (git commit -m "${COMMIT_MSG}")
     - git push http://root:$CI_PUSH_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:master
-    - qhub deploy --config qhub-config.yaml --disable-render
+    - qhub deploy --config qhub-config.yaml --disable-render --disable-prompt
 
   only:
     refs:
