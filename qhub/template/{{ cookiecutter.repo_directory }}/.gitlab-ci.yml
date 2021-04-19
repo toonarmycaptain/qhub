@@ -37,12 +37,14 @@ qhub-deploy:
 {% endif %}  
 
   script:
+    - git checkout master
     - pip install https://github.com/Quansight/qhub/archive/gitlab-integration.zip
     - qhub render --config qhub-config.yaml
     - git config user.email "qhub@quansight.com"
     - git config user.name "gitlab ci"
     - git add .
-    - git diff --quiet && git diff --staged --quiet || (git commit -m "${COMMIT_MSG}"; git push origin master:master)
+    - git diff --quiet && git diff --staged --quiet || (git commit -m "${COMMIT_MSG}")
+    - git push http://root:$CI_PUSH_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:master
     - qhub deploy --config qhub-config.yaml --disable-render
 
   only:
@@ -86,7 +88,7 @@ qhub-validate:
 {% endif %}
   script:
     - pip install https://github.com/Quansight/qhub/archive/gitlab-integration.zip
-    - qhub validate --config qhub-config.yaml
+    - qhub validate qhub-config.yaml
 
 build-images-pr:
   services:
