@@ -109,12 +109,22 @@ def qhub_configure_profile(username, safe_username, profile):
     }
 
     passwd, group = qhub_generate_nss_files()
+    bash_profile = """
+    cat <<\EOF > $HOME/.bash_profile
+    {%- if cookiecutter.provider == "gcp" %}
+    export PATH=/usr/local/nvidia/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/local/nvidia/lib64
+    {% endif %}
+    EOF
+    """
+    set_bash_profile_cmd = "\n".join(map(str.strip, bash_profile.split("\n")))
     profile['kubespawner_override']['lifecycle_hooks'] = {
         "postStart": {
             "exec": {
                 "command": ["/bin/sh", "-c", (
                      "echo '{passwd}' > /tmp/passwd && "
                      "echo '{group}' > /tmp/group && "
+                     f"{set_bash_profile_cmd}"
                      "ln -sfn /home/shared /home/jovyan/shared"
                 ).format(passwd=passwd, group=group)]
             }
