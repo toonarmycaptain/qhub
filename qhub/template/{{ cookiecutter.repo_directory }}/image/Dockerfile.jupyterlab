@@ -49,7 +49,6 @@ COPY jupyterlab /opt/jupyterlab
 RUN /opt/jupyterlab/postBuild
 
 # ========== GPU Paths ============
-ENV PATH=/usr/local/nvidia/bin:$PATH
 ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib64
 
 # ========== users configuration ============

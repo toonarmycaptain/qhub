@@ -9,6 +9,7 @@ sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/profile.d/term_
 # Always try to activate default conda environment (in /etc/profile.d)
 cat << EOF > /etc/profile.d/PATH_modification.sh
 PATH="\$PATH:/opt/scripts"
+PATH=/usr/local/nvidia/bin:$PATH
 
 EOF
 
