@@ -52,3 +52,7 @@ google_cloud_platform:
           count: 1
 
 ```
+
+## DigitalOcean
+
+DigitalOcean does not support GPUs at the time of writing this.
