@@ -12,6 +12,7 @@ on:
     tags: # Always, regardless of paths above
       - '*'
 
+
 jobs:
   jupyterlab:
     name: 'Build Docker Images'
