@@ -689,9 +689,7 @@ environments:
       - python=3.7
       - ipykernel
       - ipywidgets
-      - dask==2.30.0
-      - distributed==2.30.1
-      - dask-gateway=0.9.0
+      - qhub-dask==0.2.3
       - numpy
       - numba
       - pandas
@@ -705,9 +703,7 @@ environments:
       - python=3.7
       - ipykernel
       - ipywidgets
-      - dask==2.30.0
-      - distributed==2.30.1
-      - dask-gateway=0.9.0
+      - qhub-dask==0.2.3
       - numpy
       - numba
       - pandas
@@ -722,8 +718,7 @@ expect this environment distribution method to change over time.
 Each environment configuration is a `environment.<filename>` mapping to a
 conda environment definition file. If you need to pin a specific version,
 please include it in the definition. One current requirement is that
-each environment include `ipykernel`, `ipywidgets`, `dask==2.30.0`,
-`distributed==2.30.1`, `dask-gateway==0.9.0`. Upon changing the
+each environment include `ipykernel`, `ipywidgets`, `qhub-dask==0.2.3`. Upon changing the
 environment definition expect 1-10 minutes upon deployment of the
 configuration for the environment to appear.
 
@@ -864,9 +859,7 @@ environments:
       - python=3.7
       - ipykernel
       - ipywidgets
-      - dask==2.30.0
-      - distributed==2.30.1
-      - dask-gateway=0.9.0
+      - qhub-dask==0.2.3
       - numpy
       - numba
       - pandas
@@ -880,9 +873,7 @@ environments:
       - python=3.7
       - ipykernel
       - ipywidgets
-      - dask==2.30.0
-      - distributed==2.30.1
-      - dask-gateway=0.9.0
+      - qhub-dask==0.32.3
       - numpy
       - numba
       - pandas
