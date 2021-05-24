@@ -215,3 +215,15 @@ module "prefect" {
   prefect_token        = var.prefect_token
 }
 {% endif -%}
+
+resource "kubernetes_config_map" "qhub-nfsuserinfo-migration" {
+  metadata {
+    name      = "qhub-nfsuserinfo-migration"
+    namespace = var.environment
+  }
+
+  data = {
+    "initial-users.json" = jsonencode({{ cookiecutter.security.users | jsonify }})
+    "initial-groups.json" = jsonencode({{ cookiecutter.security.groups | jsonify }})
+  }
+}

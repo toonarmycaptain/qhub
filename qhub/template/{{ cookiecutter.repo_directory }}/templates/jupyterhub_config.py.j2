@@ -66,14 +66,18 @@ QHUB_GROUP_MAPPING = {{ cookiecutter.security.groups }}
 QHUB_PROFILES = {{ cookiecutter.profiles.jupyterlab }}
 
 def qhub_get_nss_user(username):
-    grouplist = json.dumps(["admin"])
+
+    groupnames = [QHUB_USER_MAPPING[username]['primary_group']]
+    groupnames.extend(QHUB_USER_MAPPING[username].get('secondary_groups', []))
+
+    grouplist = json.dumps(groupnames)
     r = urlopen(f"http://qhub-nfsuserinfo:8091/user?username={username}", grouplist.encode("utf-8"))
     user = json.load(r)
 
     # Example:
     # { "username": "dan","uid": 2000,
-    # "groups": [ { "groupname": "admin", "gid": 100 },
-    #    { "groupname": "users", "gid": 101 }
+    # "groups": [ { "groupname": "admin", "gid": 101 },
+    #    { "groupname": "users", "gid": 100 }
     #    ]  }
 
     assert username == user['username']
@@ -117,7 +121,8 @@ def qhub_configure_profile(user_nss_json, safe_username, profile):
                 "command": ["/bin/sh", "-c", (
                      "curl 'http://qhub-nfsuserinfo:8091/etc/passwd' > /tmp/passwd && "
                      "curl 'http://qhub-nfsuserinfo:8091/etc/group' > /tmp/group && "
-                     "ln -sfn /home/shared /home/jovyan/shared"
+                     "ln -sfn /home/shared /home/jovyan/shared "
+                     " && cat /tmp/passwd && cat /tmp/group "
                 )]
             }
         }
@@ -133,7 +138,7 @@ def qhub_configure_profile(user_nss_json, safe_username, profile):
                   "chown {uid}:{primary_gid} /mnt/home/{username}",
                   "mkdir -p /mnt/home/shared",
                   "chmod 777 /mnt/home/shared"
-             ] + ["mkdir -p /mnt/home/shared/{groupname} && chmod 2770 /mnt/home/shared/{groupname} && chown 0:{gid} /mnt/home/shared/{groupname}".format(groupname=groupname, gid=config['gid']) for groupname, config in QHUB_GROUP_MAPPING.items()]).format(username=safe_username, uid=uid, primary_gid=primary_gid)],
+             ] + ["mkdir -p /mnt/home/shared/{groupname} && chmod 2770 /mnt/home/shared/{groupname} && chown 0:{gid} /mnt/home/shared/{groupname}".format(groupname=g['groupname'], gid=g['gid']) for g in groups]).format(username=safe_username, uid=uid, primary_gid=primary_gid)],
              "securityContext": {"runAsUser": 0},
              "volumeMounts": [{"mountPath": "/mnt", "name": "home"}]
         }
