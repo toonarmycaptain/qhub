@@ -94,7 +94,7 @@ comparison due to computer architecture and clock rate.
 
 From the chart above we can see that cloud prices are pretty much the
 same between cloud providers. For smaller instances (not shown in this
-table) digital ocean can same some money.
+table) digital ocean can save some money.
 
 
 
