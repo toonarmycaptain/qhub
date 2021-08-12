@@ -264,3 +264,16 @@ module "forwardauth" {
   jh-client-secret  = random_password.forwardauth-jhsecret.result
   callback-url-path = local.forwardauth-callback-url-path
 }
+
+module "velero" {
+  source = "./modules/kubernetes/services/velero"
+
+  name = "velero"
+
+  namespace = var.environment
+  node-group   = local.node_groups.general
+
+  depends_on = [
+    module.kubernetes-initialization
+  ]
+}
