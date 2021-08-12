@@ -6,6 +6,9 @@
     "ci_cd": {
       "branch": "main"
     },
+    "velero": {
+        "enabled": null
+    },
     "endpoint": null,
     "terraform_state": {
       "type": "remote"
