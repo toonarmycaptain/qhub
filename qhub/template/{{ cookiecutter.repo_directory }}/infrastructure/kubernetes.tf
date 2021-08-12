@@ -265,6 +265,7 @@ module "forwardauth" {
   callback-url-path = local.forwardauth-callback-url-path
 }
 
+{% if cookiecutter.velero.enabled -%}
 module "velero" {
   source = "./modules/kubernetes/services/velero"
 
@@ -277,3 +278,4 @@ module "velero" {
     module.kubernetes-initialization
   ]
 }
+{% endif -%}
