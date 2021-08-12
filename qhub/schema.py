@@ -221,6 +221,13 @@ class LocalProvider(Base):
     node_selectors: typing.Dict[str, KeyValueDict]
 
 
+# ============== Velero =============
+
+
+class Velero(Base):
+    enabled: bool
+
+
 # ================= Theme ==================
 
 
