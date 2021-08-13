@@ -57,6 +57,9 @@ BASE_CONFIGURATION = {
             "h2_color": "#652e8e",
         }
     },
+    "velero": {
+        "enabled": False,
+    },
     "cdsdashboards": {
         "enabled": True,
         "cds_hide_user_named_servers": True,
@@ -255,6 +258,7 @@ def render_config(
     terraform_state=None,
     kubernetes_version=None,
     disable_prompt=False,
+    velero=False,
 ):
     config = BASE_CONFIGURATION
     config["provider"] = cloud_provider
@@ -405,6 +409,9 @@ def render_config(
             raise ValueError(
                 f"Repository to be auto-provisioned is not the full URL of a GitHub repo: {repository}"
             )
+
+    if velero:
+        config["velero"]["enabled"] = True
 
     return config
 

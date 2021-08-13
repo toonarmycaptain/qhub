@@ -370,6 +370,7 @@ class Main(Base):
     profiles: Profiles
     environments: typing.Dict[str, CondaEnvironment]
     clearml: typing.Optional[ClearML]
+    velero: typing.Optional[Velero]
 
 
 def verify(config):
