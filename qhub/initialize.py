@@ -57,9 +57,6 @@ BASE_CONFIGURATION = {
             "h2_color": "#652e8e",
         }
     },
-    "velero": {
-        "enabled": False,
-    },
     "cdsdashboards": {
         "enabled": True,
         "cds_hide_user_named_servers": True,
