@@ -31,6 +31,7 @@ def test_render(
         terraform_state="remote",
         kubernetes_version="1.18.0",
         disable_prompt=True,
+        velero=False
     )
 
     config_filename = tmp_path / (project + ".yaml")

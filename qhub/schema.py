@@ -228,6 +228,13 @@ class LocalProvider(Base):
     node_selectors: typing.Dict[str, KeyValueDict]
 
 
+# ============== Velero =============
+
+
+class Velero(Base):
+    enabled: bool
+
+
 # ================= Theme ==================
 
 
@@ -371,6 +378,7 @@ class Main(Base):
     environments: typing.Dict[str, CondaEnvironment]
     monitoring: typing.Optional[Monitoring]
     clearml: typing.Optional[ClearML]
+    velero: typing.Optional[Velero]
 
 
 def verify(config):
