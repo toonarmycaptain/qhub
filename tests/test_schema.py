@@ -29,5 +29,6 @@ def test_schema(
         terraform_state="remote",
         kubernetes_version="1.18.0",
         disable_prompt=True,
+        velero=False,
     )
     assert qhub.schema.verify(config) is None
